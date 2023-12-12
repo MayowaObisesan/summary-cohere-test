@@ -1,0 +1,37 @@
+BULLET RESULTS
+Summary:
+- GitHub is a code hosting platform that offers a variety of features, including Git repository management, code review, and collaboration tools.
+- It also provides advanced security features, such as code scanning and secret scanning, to help developers secure their code and prevent vulnerabilities.
+- GitHub offers a free plan for open source projects and a paid plan for enterprise teams.
+- It is used by developers around the world to build and collaborate on a variety of projects.
+
+PARAGRAPH RESULTS
+Summary:
+GitHub is a developer platform that offers an AI-powered dev environment to help build, scale and deliver software. It offers tools such as GitHub Copilot and GitHub Codespaces, as well as services such as GitHub Advanced Security and GitHub Sponsors. It also offers GitHub Actions for automating build, test and deployment workflows, and GitHub Discussions for creating space to have open-ended conversations. It is used by organisations and individuals alike and is 22% more productive than other platforms.
+
+BULLET RESULTS
+Summary:
+- GitHub is an open-source platform with a large community of developers and companies that offers a range of products, including GitHub Free, a free version with unlimited public and private repositories and access to community support; GitHub Pro, a subscription that offers advanced code management and collaboration features for individuals; GitHub Team, a subscription that provides collaborative code management for small teams; and GitHub Enterprise, a self-hosted version of GitHub for large-scale enterprise software development.
+- The platform also offers GitHub Actions for automating workflows, GitHub Codespaces for creating cloud-based development environments, and GitHub Copilot, an AI-powered coding assistant.
+- In addition, GitHub offers enterprise plans with advanced security, governance, and management features, as well as GitHub Advanced Security, a set of security tools for proactive threat response and secure application development.
+
+PARAGRAPH RESULTS
+Summary:
+Summary: Microsoft-owned GitHub has added new features to improve software supply chain security. Dependabot can now find and fix vulnerabilities in a user's project, while code scanning can identify issues in code before it is merged. Dependabot will analyse the open-source dependencies of a GitHub project and suggest versions that are more secure. Code scanning will also analyse code for other issues, including potential security problems, and suggest fixes. The company has also added Secret scanning, which will automatically detect accidentally committed secrets.
+
+PARAGRAPH RESULTS - Using navigable parsed strip
+Summary: GitHub has announced its GitHub Universe event which will take place between 8-9 November 2022. The event will include talks on security, devops, devsecops and devex. The firm is also launching a number of new products, including GitHub Copilot, which enables developers to use AI to write code; GitHub Codespaces, which allows users to develop, test and open pull requests from any device; and GitHub Advanced Security, a comprehensive, cloud-native suite of security tools.
+
+BULLET RESULTS - Using navigable parsed string
+Summary:
+- GitHub has launched a campaign called "Let's build from here", highlighting its range of products such as Actions, Codespaces, Copilot, and Advanced Security, and how they can help developers build, scale and deliver secure software.
+- The campaign also highlights statistics on increased developer productivity and reduced onboarding time for users of GitHub.
+
+BULLET RESULTS - Using navigable parsed string again - same as above
+Summary:
+- GitHub is the AI-powered developer platform that builds, scales, and delivers secure software.
+- It offers a range of features, including automated workflows, package hosting, and instant dev environments.
+- GitHub is trusted by organizations such as Netflix, Spotify, and Facebook.
+- It helps developers to be more productive, collaborate effectively, and secure their code.
+- Features such as Copilot, GitHub Actions, and Advanced Security help developers to write better code, automate their workflows, and respond to threats proactively.
+- GitHub also offers a free enterprise trial and pricing plans for teams, startups, and enterprises.
