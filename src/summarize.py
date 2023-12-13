@@ -2,7 +2,7 @@ import os
 
 import cohere
 
-API_KEY: str = os.environ.get("COHERE_API_KEY", "WZvnIklx8jzdruCvDlNFavJf3BN56rz5b9i6A5Q3")
+API_KEY: str = os.environ.get("COHERE_API_KEY", "")
 print(API_KEY)
 
 default_text = 'Passage: Is Wordle getting tougher to solve? Players seem to be convinced that the game has gotten harder '
