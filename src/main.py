@@ -84,16 +84,17 @@ async def summary(
         search_result_counter = 0
         if next_page:
             print("Next page results")
-            # search_results = SummarySearchProcessorStream(search_input).google_searcher(
-            #     num=settings.NUMBER_SEARCH_RESULT, start=start_index
-            # )
-            search_results = dummy_search_result2
+            print(start_index)
+            search_results = SummarySearchProcessorStream(search_input).google_searcher(
+                num=settings.NUMBER_SEARCH_RESULT, start=start_index
+            )
+            # search_results = dummy_search_result2
         else:
             print(search_result_counter)
-            # search_results = SummarySearchProcessorStream(search_input).google_searcher(
-            #     num=settings.NUMBER_SEARCH_RESULT
-            # )
-            search_results = dummy_search_result
+            search_results = SummarySearchProcessorStream(search_input).google_searcher(
+                num=settings.NUMBER_SEARCH_RESULT
+            )
+            # search_results = dummy_search_result
         # print(search_results.length)
 
         for f in asyncio.as_completed([

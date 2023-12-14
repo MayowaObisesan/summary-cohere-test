@@ -455,6 +455,8 @@ class SummarySearchProcessorStream:
                     # print(response.get_encoding())
                     # Check the response's content_type, as it can break the execution loop
                     # Added this check - March 5, 2023. 18:41
+                    # print(dir(response))
+                    print(response.status)
                     if response.content_type == "text/html":
                         text = await response.text(encoding='utf-8')
                         # Add BS parsing here, and return it.
