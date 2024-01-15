@@ -64,3 +64,14 @@ QUERY_DATA_EXPIRE_IN = 3600  # Expiration time in seconds
 #       ]
 #     }
 #   ]
+
+
+# SUMMARY SEARCH HEADERS
+SEARCH_HEADERS = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Max-Age": "3600",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+                  "Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.50"
+}
