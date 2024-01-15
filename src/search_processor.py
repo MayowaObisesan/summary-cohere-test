@@ -14,7 +14,7 @@ from yarl import URL
 
 import settings
 # from history_processor import SummaryHistoryProcessor
-from utils import how_to_clean_html_definition
+from utils import how_to_clean_html_definition, robots_data
 
 # logging.basicConfig(format=f'%(asctime)s - %(levelname)s:::%(message)s', level=logging.INFO)
 logging.basicConfig(format=f'%(levelname)s:::%(message)s', level=logging.INFO)
@@ -93,13 +93,7 @@ class SummarySearchProcessorStream:
 
     def __init__(self, search_input: str):
         # Setup API call
-        self.headers = {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET",
-            "Access-Control-Allow-Headers": "Content-Type",
-            "Access-Control-Max-Age": "3600",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.50"
-        }
+        self.headers = settings.SEARCH_HEADERS
         self.search_input = search_input
         self.payloads = list()
         self.summarized_search_results = list()
@@ -447,14 +441,26 @@ class SummarySearchProcessorStream:
 
     async def fetch_page_summaries(self, index, obj: dict, headers):
         url = obj.get("link")
+
+        # If the url does not allow scraping, return the obj. Don't parse the url.
+        if not robots_data(url).get("can_fetch"):
+            obj.update({
+                'index': index,
+                'scrapping_allowed': False,
+                'summary_text': '',
+                'timed_out': False
+            })
+            return obj
         try:
             async with aiohttp.ClientSession() as session:
-                async with session.get(URL(url), headers=headers) as response:
+                async with session.get(URL(url), timeout=10, headers=headers) as response:
                     # print(response)
                     # print(response.content_type)
                     # print(response.get_encoding())
                     # Check the response's content_type, as it can break the execution loop
                     # Added this check - March 5, 2023. 18:41
+                    # print(dir(response))
+                    print(response.status)
                     if response.content_type == "text/html":
                         text = await response.text(encoding='utf-8')
                         # Add BS parsing here, and return it.
@@ -515,9 +521,11 @@ class SummarySearchProcessorStream:
                         # SummaryHistoryProcessor().create_history(str(index), obj)
                         if len(page_text.split(" ")) < 48:
                             obj.update({
-                                'summary_text': page_text or obj.get('text'),
                                 'index': index,
-                                'icon': page_icon
+                                'icon': page_icon,
+                                'summary_text': page_text or obj.get('text'),
+                                'scrapping_allowed': True,
+                                'timed_out': False
                             })
                         else:
                             summary = await self.cohere_summarize(cleaned_page_text)
@@ -526,7 +534,9 @@ class SummarySearchProcessorStream:
                             obj.update({
                                 'index': index,
                                 'icon': page_icon,
-                                'summary_text': summary
+                                'summary_text': summary,
+                                'scrapping_allowed': True,
+                                'timed_out': False
                             })
                     elif response.content_type.startswith("application/"):
                         logging.info(f"DETECTED APPLICATION CONTENT TYPE: {response.content_type}")
@@ -536,6 +546,12 @@ class SummarySearchProcessorStream:
         except asyncio.TimeoutError:
             # Return the content of the website if it timed out.
             logging.warning(f"{url} timed out")
+            obj.update({
+                'index': index,
+                'summary_text': '',
+                'scrapping_allowed': True,
+                'timed_out': True
+            })
             return obj
             # raise asyncio.TimeoutError({"error": f"{url} - Request timeout"})
         except aiohttp.ServerTimeoutError as err:

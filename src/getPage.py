@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup, NavigableString, CData, TemplateString
 
 # URL of the webpage you want to fetch
 # url = 'https://github.com'
-url = 'https://play.google.com/store/apps/details?id=de.stollenmayer.philipp.Pop_1_1_Android&hl=en_US&gl=US'
+url = 'https://jarchives.com/'
 
 # Send an HTTP GET request to the URL
 response = requests.get(url)

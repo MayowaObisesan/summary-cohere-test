@@ -11,7 +11,7 @@ from fastapi.responses import JSONResponse
 
 import settings
 from search_processor import SummarySearchProcessorStream
-from settings import summary_allowed_origins
+from settings import summary_allowed_origins, SEARCH_HEADERS
 from dummy_search_result import dummy_search_result, dummy_search_result2
 
 app = FastAPI()
@@ -33,6 +33,17 @@ async def root():
         'summary': 'hello... 😘👋😉😁🙂😎',
     }
     return response
+
+
+@lru_cache
+@app.get('/summary/single')
+async def summary_single(request: Request, search_input: str = None):
+    data = await request.json()
+    result = await SummarySearchProcessorStream(search_input).fetch_page_summaries(
+        data.index, data,
+        SEARCH_HEADERS
+    )
+    return result
 
 
 @lru_cache
@@ -58,14 +69,6 @@ async def summary(
 
     async def event_gens_google_search():
         print("headers")
-        headers = {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET",
-            "Access-Control-Allow-Headers": "Content-Type",
-            "Access-Control-Max-Age": "3600",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-                          "Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.50"
-        }
         print(search_input)
         # index: int = 1
         # start_index: int = 1
@@ -84,20 +87,21 @@ async def summary(
         search_result_counter = 0
         if next_page:
             print("Next page results")
-            # search_results = SummarySearchProcessorStream(search_input).google_searcher(
-            #     num=settings.NUMBER_SEARCH_RESULT, start=start_index
-            # )
-            search_results = dummy_search_result2
+            print(start_index)
+            search_results = SummarySearchProcessorStream(search_input).google_searcher(
+                num=settings.NUMBER_SEARCH_RESULT, start=start_index
+            )
+            # search_results = dummy_search_result2
         else:
             print(search_result_counter)
-            # search_results = SummarySearchProcessorStream(search_input).google_searcher(
-            #     num=settings.NUMBER_SEARCH_RESULT
-            # )
-            search_results = dummy_search_result
+            search_results = SummarySearchProcessorStream(search_input).google_searcher(
+                num=settings.NUMBER_SEARCH_RESULT
+            )
+            # search_results = dummy_search_result
         # print(search_results.length)
 
         for f in asyncio.as_completed([
-            SummarySearchProcessorStream(search_input).fetch_page_summaries(index, each_search_result, headers)
+            SummarySearchProcessorStream(search_input).fetch_page_summaries(index, each_search_result, SEARCH_HEADERS)
             for index, each_search_result in enumerate(search_results.get("items"))
         ]):
             result = await f
