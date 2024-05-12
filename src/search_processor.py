@@ -98,6 +98,17 @@ class SummarySearchProcessorStream:
         self.payloads = list()
         self.summarized_search_results = list()
 
+    def news_api(self, news_sources="fox-news"):
+        """
+        Fetch News API data
+        :Date: April 3, 2024.
+        """
+        from newsapi import NewsApiClient
+        newsapi = NewsApiClient(api_key='5e53adf3f76e4563a808311fbdf158f9')
+
+        top_headlines = newsapi.get_top_headlines(q=self.search_input, sources=news_sources)
+        return top_headlines
+
     def google_searcher(self, **kwargs):
         """
         Perform a Google search using Custom Search API
@@ -439,6 +450,14 @@ class SummarySearchProcessorStream:
         # logging.info(f"Added {len(self.payloads)} payloads")
         return obj
 
+    async def fetch_content_summaries(self, index, obj: dict):
+        try:
+            summary = await self.cohere_summarize(obj.get("content"))
+            obj.update({'index': index, 'summary_text': summary})
+        except Exception as err:
+            print("Error occurred fetching content summary: ", err)
+        return obj
+
     async def fetch_page_summaries(self, index, obj: dict, headers):
         url = obj.get("link")
 
@@ -531,6 +550,99 @@ class SummarySearchProcessorStream:
                             summary = await self.cohere_summarize(cleaned_page_text)
                             # logging.info(summary)
                             # obj.update({"summary_text": summary})
+                            obj.update({
+                                'index': index,
+                                'icon': page_icon,
+                                'summary_text': summary,
+                                'scrapping_allowed': True,
+                                'timed_out': False
+                            })
+                    elif response.content_type.startswith("application/"):
+                        logging.info(f"DETECTED APPLICATION CONTENT TYPE: {response.content_type}")
+                        if response.content_type == "application/pdf":
+                            # process the pdf file and return the summary of the pdf file.
+                            ...
+        except asyncio.TimeoutError:
+            # Return the content of the website if it timed out.
+            logging.warning(f"{url} timed out")
+            obj.update({
+                'index': index,
+                'summary_text': '',
+                'scrapping_allowed': True,
+                'timed_out': True
+            })
+            return obj
+            # raise asyncio.TimeoutError({"error": f"{url} - Request timeout"})
+        except aiohttp.ServerTimeoutError as err:
+            logging.error("Server timed out")
+            # Resend the current request
+            # raise aiohttp.ServerTimeoutError({"error": "Client Timeout. Kindly Try again"})
+        except aiohttp.ClientConnectorCertificateError:
+            logging.error("Certificate error occurred")
+            # raise {"error": "Connection Error"}
+            pass
+        except aiohttp.ClientConnectorError:
+            logging.error("Client connector error occurred")
+            # raise {"error": "Connection Error occurred"}
+            pass
+        except aiohttp.ServerConnectionError:
+            logging.error("Server connection error")
+            # raise aiohttp.ServerConnectionError({"error": "Server Disconnected. Kindly Try again"})
+            pass
+        except Exception as err:
+            logging.error(f"Error occurred: {err}")
+            pass
+            # logging.info(f"Added {len(self.payloads)} payloads")
+        return obj
+
+    async def fetch_page_summaries_using_url(self, index, url: str, headers):
+        # url = obj.get("link")
+        obj = {
+            'url': url
+        }
+
+        # If the url does not allow scraping, return the obj. Don't parse the url.
+        if not robots_data(url).get("can_fetch"):
+            obj.update({
+                'index': index,
+                'scrapping_allowed': False,
+                'summary_text': '',
+                'timed_out': False
+            })
+            return obj
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(URL(url), timeout=40, headers=headers) as response:
+                    if response.content_type == "text/html":
+                        text = await response.text(encoding='utf-8')
+                        # Add BS parsing here, and return it.
+                        soup = BeautifulSoup(str(text), 'lxml')
+                        page_icon = soup.find("link", attrs={'rel': 'icon'})
+                        page_icon = page_icon.get('href') if page_icon else ""
+                        [_.decompose() for _ in soup.find_all(how_to_clean_html_definition)]
+                        page_text = soup.get_text(separator="\n", strip=True,
+                                                  types=(NavigableString, CData, TemplateString))
+
+                        # Remove some unnecessary
+                        page_text_list: list = list()
+                        for _ in page_text.split("."):
+                            # _ = _.replace("\n", " ")
+                            _ = re.sub(r'\s{1,}', ' ', _)
+                            if len(_.split(" ")) <= 4:
+                                continue
+                            page_text_list.append(_)
+                        cleaned_page_text = "".join(page_text_list)
+
+                        if len(page_text.split(" ")) < 48:
+                            obj.update({
+                                'index': index,
+                                'icon': page_icon,
+                                'summary_text': page_text,
+                                'scrapping_allowed': True,
+                                'timed_out': False
+                            })
+                        else:
+                            summary = await self.cohere_summarize(cleaned_page_text)
                             obj.update({
                                 'index': index,
                                 'icon': page_icon,
