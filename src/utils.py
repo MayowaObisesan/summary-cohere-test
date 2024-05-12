@@ -14,7 +14,11 @@ def robots_data(url):
 
     robot_parser = RobotFileParser()
     robot_parser.set_url(robots_url)
-    robot_parser.read()
+    try:
+        robot_parser.read()
+    except Exception as err:
+        print("Error reading robots.txt file: ", err)
+
     rrate = robot_parser.request_rate("*")
     # Request rate to limit the behaviour of of fetching multiple pages simultaneously
     robot_request_rate = rrate.requests if rrate else None
